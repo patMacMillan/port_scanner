@@ -23,13 +23,13 @@ class Scanner():
 	# Scans a range of ports on a single IP address.
 	# by trying to open a 
 	def scanIP(self, ip):
-		for port in range(startPort, stopPort+1):
+		for port in range(startPort, (stopPort+1)):
 			sock=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			# connect_ex() tries to find a connection exception
 			# thus if the connection exception is false, then 
 			# the socket must have been made on that port.
 			if sock.connect_ex((ip, port)) == False:
-				print("Port " + str(port) + " is open.")
+				print("Port {} is open.".format(port))
 			sock.close()
 
 	def scanIP_range(self):
@@ -45,7 +45,7 @@ class Scanner():
 						while int(startIP[3]) <= int(stopIP[3]):
 							# Concat all IP sections
 							currIP = str(startIP[0])+"."+str(startIP[1])+"."+str(startIP[2])+"."+str(startIP[3])
-							scanIP(currIP)
+							self.scanIP(currIP)
 							startIP[3]= int(startIP[3]) + 1
 						startIP[2]= int(startIP[2]) + 1
 					startIP[1]= int(startIP[1]) + 1
@@ -59,13 +59,16 @@ ipAdrStart, ipAdrStop = input("Enter target IP Address (StartIP-EndIP): ").split
 
 startPort, stopPort = input("Enter ports (StartPort-StopPort): ").split("-")
 
+startPort_int = int(startPort)
+stopPort_int = int(stopPort)
+
 closed_ports = 0
 
 print("Scanning hosts " + ipAdrStart + " to " + ipAdrStop + ".")
 print("Scanning ports " + str(startPort) + " to " + str(stopPort))
 print("Scanning in progress...\n")
 
-scanner = Scanner(ipAdrStart, ipAdrStop, startPort, stopPort)
+scanner = Scanner(ipAdrStart, ipAdrStop, startPort_int, stopPort_int)
 scanner.scanIP_range()
 
 
