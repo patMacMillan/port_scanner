@@ -1,4 +1,4 @@
-import socket 
+from socket import *
 
 print("   ____             ______                         ")
 print("  /   /  ____   ___   /   ___   ___   ___      ____")
@@ -12,8 +12,9 @@ class Scanner():
 	__stopPort = 0
 	#__udp_scan = False
 
-	def __init__(self, ipAdr, startPort, stopPort):
-		self.__ipAdr=ipAdr
+	def __init__(self, ipAdrStart, ipAdrStop, startPort, stopPort):
+		self.__ipAdrStart=ipAdrStart
+		self.__ipAdrStop=ipAdrStop
 		self.__startPort=startPort
 		self.__stopPort=stopPort
 		#self.__udp_scan=udp_scan
@@ -21,7 +22,7 @@ class Scanner():
 	# scanIP(ip)
 	# Scans a range of ports on a single IP address.
 	# by trying to open a 
-	def scanIP(ip):
+	def scanIP(self, ip):
 		for port in range(startPort, stopPort+1):
 			sock=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			# connect_ex() tries to find a connection exception
@@ -31,50 +32,54 @@ class Scanner():
 				print("Port " + str(port) + " is open.")
 			sock.close()
 
-	def scanIP_range():
-		if ipAdr.find("-")==(-1): #Only one IP
+	def scanIP_range(self):
+		if ipAdrStop == 0:
 			scanIP(ipAdr)
 		else:
-			ips = ipAdr.split('-')
-			startIP = map(int, ips[0].split('.'))
-			stopIP = map(int, ips[1].split('.'))
+			startIP = ipAdrStart.split('.')
+			stopIP = ipAdrStop.split('.')
 			# Scan all IPs.
-			while startIP[0] <= stopIP[0]:
-				while startIP[1] <= stopIP[1]:
-					while startIP[2] <= stopIP[2]:
-						while startIP[3] <= stopIP[3]:
+			while int(startIP[0]) <= int(stopIP[0]):
+				while int(startIP[1]) <= int(stopIP[1]):
+					while int(startIP[2]) <= int(stopIP[2]):
+						while int(startIP[3]) <= int(stopIP[3]):
+							# Concat all IP sections
 							currIP = str(startIP[0])+"."+str(startIP[1])+"."+str(startIP[2])+"."+str(startIP[3])
-							scanIP()
-							startIP[3]+=1
-						startIP[2]+=1
-					startIP[1]+=1
-				startIP[0]+=1
+							scanIP(currIP)
+							startIP[3]= int(startIP[3]) + 1
+						startIP[2]= int(startIP[2]) + 1
+					startIP[1]= int(startIP[1]) + 1
+				startIP[0]= int(startIP[0]) + 1
 
-#                           #
-# Main function starts here #
-#                           #
 
-ipAdr = input("Enter target IP Address: ")
-ipAdr = socket.gethostbyname(ipAdr)
-startPort= int(input("Enter starting port: "))
-endPort = int(input("Enter ending port: "))
+
+
+
+ipAdrStart, ipAdrStop = input("Enter target IP Address (StartIP-EndIP): ").split("-")
+
+startPort, stopPort = input("Enter ports (StartPort-StopPort): ").split("-")
+
 closed_ports = 0
 
-print("Scanning host " + ipAdr)
-print("Scanning ports " + str(startPort) + " to " + str(endPort))
+print("Scanning hosts " + ipAdrStart + " to " + ipAdrStop + ".")
+print("Scanning ports " + str(startPort) + " to " + str(stopPort))
 print("Scanning in progress...\n")
+
+scanner = Scanner(ipAdrStart, ipAdrStop, startPort, stopPort)
+scanner.scanIP_range()
+
 
 # socket(address_family, socket_type)
 # AF_INET     => IPv4 Address Family
 # SOCK_STREAM => TCP connectons
 # SOCK_DGRAM  => UDP connections
-for port in range(startPort, endPort+1):
-	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	if sock.connect_ex((ipAdr, port)) == 0:
-	 	print("Port " + str(port) + " is open.")
-	else:
-		closed_ports+=1
-	sock.close()
-
-print("\nScanning completed.")
-print(str(closed_ports) + " ports were closed.")  
+#for port in range(startPort, endPort+1):
+#	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#	if sock.connect_ex((ipAdr, port)) == 0:
+#	 	print("Port " + str(port) + " is open.")
+#	else:
+#		closed_ports+=1
+#	sock.close()
+#
+#print("\nScanning completed.")
+#print(str(closed_ports) + " ports were closed.")  
