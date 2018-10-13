@@ -1,4 +1,4 @@
-from socket import *
+import socket
 
 print("   ____             ______                         ")
 print("  /   /  ____   ___   /   ___   ___   ___      ____")
@@ -7,7 +7,8 @@ print("/      /___/  /     /    __\  /___  /___/ \  /   / ")
 print("                                        Version 1.0")
 
 class Scanner():
-	__ipAdr = "" 
+	__ipAdrStart = ""
+	__ipAdrStop = "" 
 	__startPort = 0
 	__stopPort = 0
 	#__udp_scan = False
@@ -23,14 +24,19 @@ class Scanner():
 	# Scans a range of ports on a single IP address.
 	# by trying to open a 
 	def scanIP(self, ip):
-		for port in range(startPort, (stopPort+1)):
-			sock=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		closedPorts = 0
+		for port in range(int(startPort), int(stopPort)+1):
+			sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			# connect_ex() tries to find a connection exception
 			# thus if the connection exception is false, then 
 			# the socket must have been made on that port.
 			if sock.connect_ex((ip, port)) == False:
 				print("Port {} is open.".format(port))
+			else:
+				closedPorts+=1
+				#print("Port {} is closed.".format(port))
 			sock.close()
+		print("{} ports are closed!".format(closedPorts))
 
 	def scanIP_range(self):
 		if ipAdrStop == 0:
@@ -45,7 +51,9 @@ class Scanner():
 						while int(startIP[3]) <= int(stopIP[3]):
 							# Concat all IP sections
 							currIP = str(startIP[0])+"."+str(startIP[1])+"."+str(startIP[2])+"."+str(startIP[3])
+							print("Scanning IP Address {}:".format(currIP))
 							self.scanIP(currIP)
+							print()
 							startIP[3]= int(startIP[3]) + 1
 						startIP[2]= int(startIP[2]) + 1
 					startIP[1]= int(startIP[1]) + 1
@@ -70,19 +78,3 @@ print("Scanning in progress...\n")
 
 scanner = Scanner(ipAdrStart, ipAdrStop, startPort_int, stopPort_int)
 scanner.scanIP_range()
-
-
-# socket(address_family, socket_type)
-# AF_INET     => IPv4 Address Family
-# SOCK_STREAM => TCP connectons
-# SOCK_DGRAM  => UDP connections
-#for port in range(startPort, endPort+1):
-#	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#	if sock.connect_ex((ipAdr, port)) == 0:
-#	 	print("Port " + str(port) + " is open.")
-#	else:
-#		closed_ports+=1
-#	sock.close()
-#
-#print("\nScanning completed.")
-#print(str(closed_ports) + " ports were closed.")  
